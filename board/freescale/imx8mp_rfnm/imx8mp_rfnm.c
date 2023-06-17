@@ -452,9 +452,32 @@ int board_phy_config(struct phy_device *phydev)
 #define DISPMIX				13
 #define MIPI				15
 
+static iomux_v3_cfg_t ss_mux_rfnm_pwr[] = {
+	MX8MP_PAD_GPIO1_IO12__GPIO1_IO12 | MUX_PAD_CTRL(NO_PAD_CTRL),
+	MX8MP_PAD_NAND_READY_B__GPIO3_IO16 | MUX_PAD_CTRL(NO_PAD_CTRL),
+};
+
+#define PWR_EN_33V IMX_GPIO_NR(1, 12)
+#define Si5510_PWR_EN IMX_GPIO_NR(3, 16)
+
+
 int board_init(void)
 {
 	struct arm_smccc_res res;
+
+
+	imx_iomux_v3_setup_multiple_pads(ss_mux_rfnm_pwr, ARRAY_SIZE(ss_mux_rfnm_pwr));
+
+	gpio_request(PWR_EN_33V, "pwr_en_33v");
+	gpio_direction_output(PWR_EN_33V, 1);
+
+	gpio_request(Si5510_PWR_EN, "si5510_pwr_en");
+	gpio_direction_output(Si5510_PWR_EN, 1);
+
+
+	printf("Done pwr en init\n");
+
+
 
 #ifdef CONFIG_USB_TCPC
 	setup_typec();
