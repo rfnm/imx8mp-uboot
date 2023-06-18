@@ -122,6 +122,10 @@
 	"kernel_addr_r=" __stringify(CONFIG_SYS_LOAD_ADDR) "\0" \
 	"bsp_script=boot.scr\0" \
 	"image=Image\0" \
+	"serverip=10.0.0.103\0" \
+	"fdtfile=dtb\0" \
+	"ipaddr=10.0.0.44\0" \
+	"netmask=255.255.255.0\0" \
 	"splashimage=0x50000000\0" \
 	"console=ttymxc1,115200\0" \
 	"fdt_addr_r=0x43000000\0"			\
@@ -196,16 +200,12 @@
 
 #define CONFIG_MMCROOT			"/dev/mmcblk1p2"  /* USDHC2 */
 
-/* Totally 6GB DDR */
+/* 2GB DDR */
 #define CONFIG_SYS_SDRAM_BASE		0x40000000
 #define PHYS_SDRAM			0x40000000
-#define PHYS_SDRAM_SIZE			0xC0000000	/* 3 GB */
-#define PHYS_SDRAM_2			0x100000000
-#ifdef CONFIG_TARGET_IMX8MP_DDR4_EVK
-#define PHYS_SDRAM_2_SIZE		0x40000000	/* 1 GB */
-#else
-#define PHYS_SDRAM_2_SIZE		0xC0000000	/* 3 GB */
-#endif
+#define PHYS_SDRAM_SIZE			0x80000000		/* 2 GB */
+#undef PHYS_SDRAM_2
+#undef PHYS_SDRAM_2_SIZE
 
 #define CONFIG_MXC_UART_BASE		UART2_BASE_ADDR
 
