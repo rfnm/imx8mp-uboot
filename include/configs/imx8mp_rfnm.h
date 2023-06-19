@@ -122,9 +122,12 @@
 	"kernel_addr_r=" __stringify(CONFIG_SYS_LOAD_ADDR) "\0" \
 	"bsp_script=boot.scr\0" \
 	"image=Image\0" \
+	"ethaddr=1A:2D:1E:C3:65:D7\0" \
+	"nfsroot=/home/davide/rootfs\0" \
 	"serverip=10.0.0.103\0" \
 	"fdtfile=dtb\0" \
 	"ipaddr=10.0.0.44\0" \
+	"ip_dyn=no\0" \
 	"netmask=255.255.255.0\0" \
 	"splashimage=0x50000000\0" \
 	"console=ttymxc1,115200\0" \
@@ -158,7 +161,7 @@
 		"fi;\0" \
 	"netargs=setenv bootargs ${jh_clk} ${mcore_clk} console=${console} " \
 		"root=/dev/nfs " \
-		"ip=dhcp nfsroot=${serverip}:${nfsroot},v3,tcp\0" \
+		"ip=${ipaddr}:${serverip}:10.0.0.1:255.255.255.0::eth0:off:10.0.0.1 nfsroot=${serverip}:${nfsroot},v3,tcp\0" \
 	"netboot=echo Booting from net ...; " \
 		"run netargs;  " \
 		"if test ${ip_dyn} = yes; then " \
