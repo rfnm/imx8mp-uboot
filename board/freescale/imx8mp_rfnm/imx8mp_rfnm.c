@@ -456,11 +456,21 @@ static iomux_v3_cfg_t ss_mux_rfnm[] = {
 	MX8MP_PAD_GPIO1_IO12__GPIO1_IO12 | MUX_PAD_CTRL(NO_PAD_CTRL),
 	MX8MP_PAD_NAND_READY_B__GPIO3_IO16 | MUX_PAD_CTRL(NO_PAD_CTRL),
 	//MX8MP_PAD_SPDIF_EXT_CLK__GPIO5_IO05 | MUX_PAD_CTRL(NO_PAD_CTRL),
+	MX8MP_PAD_SD2_WP__GPIO2_IO20 | MUX_PAD_CTRL(NO_PAD_CTRL),
+	MX8MP_PAD_GPIO1_IO10__GPIO1_IO10 | MUX_PAD_CTRL(NO_PAD_CTRL),
+	MX8MP_PAD_SAI1_MCLK__GPIO4_IO20 | MUX_PAD_CTRL(NO_PAD_CTRL),
+	MX8MP_PAD_GPIO1_IO07__GPIO1_IO07 | MUX_PAD_CTRL(NO_PAD_CTRL),
+
 };
 
 #define PWR_EN_33V IMX_GPIO_NR(1, 12)
 #define Si5510_PWR_EN IMX_GPIO_NR(3, 16)
 //#define ENET_nRST IMX_GPIO_NR(5, 5)
+#define PWR_EN_LA IMX_GPIO_NR(2, 20)
+#define PWR_EN_18V IMX_GPIO_NR(1, 10)
+#define PWR_EN_09V IMX_GPIO_NR(1, 7)
+#define Si5510_RST IMX_GPIO_NR(4, 20)
+
 
 int board_init(void)
 {
@@ -468,14 +478,39 @@ int board_init(void)
 
 	imx_iomux_v3_setup_multiple_pads(ss_mux_rfnm, ARRAY_SIZE(ss_mux_rfnm));
 
+
+	gpio_request(Si5510_RST, "Si5510_RST");
+	gpio_direction_output(Si5510_RST, 0);
+
 	gpio_request(PWR_EN_33V, "PWR_EN_33V");
 	gpio_direction_output(PWR_EN_33V, 1);
+	//gpio_direction_input(PWR_EN_33V);
 
 	gpio_request(Si5510_PWR_EN, "Si5510_PWR_EN");
 	gpio_direction_output(Si5510_PWR_EN, 1);
+	//gpio_direction_input(Si5510_PWR_EN);
+
+	gpio_request(PWR_EN_LA, "PWR_EN_LA");
+	gpio_direction_output(PWR_EN_LA, 1);
+	//gpio_direction_input(PWR_EN_LA);
+
+	gpio_request(PWR_EN_18V, "PWR_EN_18V");
+	gpio_direction_output(PWR_EN_18V, 1);
+	//gpio_direction_input(PWR_EN_18V);
+
+	gpio_request(PWR_EN_09V, "PWR_EN_09V");
+	gpio_direction_output(PWR_EN_09V, 1);
+
+
+
+	mdelay(10);
+
+	gpio_direction_output(Si5510_RST, 1);
 
 
 	printf("Done pwr en init\n");
+
+	//while(1);
 
 	//gpio_request(ENET_nRST, "ENET_nRST");
 	//gpio_direction_output(ENET_nRST, 1);
@@ -485,16 +520,16 @@ int board_init(void)
 
 
 #ifdef CONFIG_USB_TCPC
-	setup_typec();
+	//setup_typec();
 
 	/* Enable USB power default */
-	imx8m_usb_power(0, true);
-	imx8m_usb_power(1, true);
+	//imx8m_usb_power(0, true);
+	//imx8m_usb_power(1, true);
 #endif
 
-	if (CONFIG_IS_ENABLED(FEC_MXC)) {
-		setup_fec();
-	}
+//	if (CONFIG_IS_ENABLED(FEC_MXC)) {
+//		setup_fec();
+//	}
 
 	if (CONFIG_IS_ENABLED(DWC_ETH_QOS)) {
 		setup_eqos();
@@ -509,10 +544,10 @@ int board_init(void)
 #endif
 
 	/* enable the dispmix & mipi phy power domain */
-	arm_smccc_smc(IMX_SIP_GPC, IMX_SIP_GPC_PM_DOMAIN,
+	/*arm_smccc_smc(IMX_SIP_GPC, IMX_SIP_GPC_PM_DOMAIN,
 		      DISPMIX, true, 0, 0, 0, 0, &res);
 	arm_smccc_smc(IMX_SIP_GPC, IMX_SIP_GPC_PM_DOMAIN,
-		      MIPI, true, 0, 0, 0, 0, &res);
+		      MIPI, true, 0, 0, 0, 0, &res);*/
 
 	return 0;
 }
