@@ -147,13 +147,90 @@ int board_fit_config_name_match(const char *name)
 }
 #endif
 
+/*
 static iomux_v3_cfg_t ss_mux_rfnm_pwr[] = {
 	MX8MP_PAD_GPIO1_IO12__GPIO1_IO12 | MUX_PAD_CTRL(NO_PAD_CTRL),
 	MX8MP_PAD_NAND_READY_B__GPIO3_IO16 | MUX_PAD_CTRL(NO_PAD_CTRL),
+	MX8MP_PAD_NAND_DATA01__GPIO3_IO07 | MUX_PAD_CTRL(NO_PAD_CTRL),
+	MX8MP_PAD_NAND_DATA02__GPIO3_IO08 | MUX_PAD_CTRL(NO_PAD_CTRL)
 };
 
 #define PWR_EN_33V IMX_GPIO_NR(1, 12)
 #define Si5510_PWR_EN IMX_GPIO_NR(3, 16)
+#define LED_DIN1 IMX_GPIO_NR(3, 7)
+#define LED_DIN2 IMX_GPIO_NR(3, 8)
+*/
+
+#define NOP1() asm volatile("nop");
+#define NOP2()   NOP1()  NOP1()
+#define NOP4()   NOP2()  NOP2()
+#define NOP8()   NOP4()  NOP4()
+#define NOP16()  NOP8()  NOP8()
+#define NOP32() NOP16() NOP16()
+#define NOP64() NOP32() NOP32()
+
+void rfnm_wsled(uint32_t reg, uint32_t led1, uint32_t led2, uint32_t led3) {
+
+	volatile unsigned int *addr;
+	addr = 0x30220000;
+
+	uint32_t initial = *addr;
+	uint32_t cond_high = initial | reg;
+	uint32_t cond_low = initial & ~(reg);
+
+	// 1000 = 1.06us
+	// 200 = 160ns
+
+	int z;
+
+	uint32_t send[4];
+	send[0] = 0;
+	send[1] = led1;
+	send[2] = led2;
+	send[3] = led3;
+
+	*addr = cond_low; for(z = 0; z < 5000; z++) asm volatile ("nop");
+
+	uint8_t current_bit = 0;
+	uint8_t current_led = 0;
+
+	uint8_t bit = (send[current_led] & (1 << current_bit)) >> current_bit;
+
+	for(current_led = 0; current_led < 4; current_led++) {
+		for(current_bit = 0; current_bit < 24; current_bit++) {
+
+			if(current_led != 0) {
+				*addr = cond_high; // reset condition while prefetching the loop
+			}
+
+			bit = (send[current_led] & (1 << current_bit)) >> current_bit;
+
+			// total bit length = 1.25us +- 600ns
+			// send one  -> high for 800 +- 150 ns; then low for 450 +- 150ns
+			// send zero -> high for 400 +- 150 ns; then low for 850 +- 150ns
+
+
+			if(bit) {
+				NOP64() NOP32() NOP16()
+
+			} else {
+				NOP16() NOP4()
+			}
+
+			*addr = cond_low;
+
+			if(bit) {
+				NOP64()
+			} else {
+				NOP64() NOP32() NOP8()
+			}
+
+		}
+	}
+
+	*addr = initial;
+}
+
 
 void board_init_f(ulong dummy)
 {
@@ -164,6 +241,34 @@ void board_init_f(ulong dummy)
 	memset(__bss_start, 0, __bss_end - __bss_start);
 
 	arch_cpu_init();
+
+	// LEDs and power init needs to happen early in the boot process (before pmic i2c requests)
+
+	volatile unsigned int *addr;
+
+	addr = 0x30220004; // GPIO3 direction register
+
+	*addr = *addr | (1 << 7); // LED1
+	*addr = *addr | (1 << 8); // LED2
+	*addr = *addr | (1 << 16); // Si5510_PWR_EN
+
+	addr = 0x30200004; // GPIO1 direction register
+
+	*addr = *addr | (1 << 12); // PWR_EN_33V
+	*addr = *addr | (1 << 10); // PWR_EN_18V
+
+
+
+	addr = 0x30200000;
+	*addr = *addr | (1 << 12);
+	*addr = *addr | (1 << 10);
+
+	addr = 0x30220000;
+
+	*addr = *addr | (1 << 16);
+
+	rfnm_wsled(0x100, 0x00ff00, 0x000000, 0x000000);
+	rfnm_wsled(0x80, 0x00ff00, 0x000000, 0x000000);
 
 	board_early_init_f();
 
@@ -185,16 +290,21 @@ void board_init_f(ulong dummy)
 		hang();
 	}
 
-	imx_iomux_v3_setup_multiple_pads(ss_mux_rfnm_pwr, ARRAY_SIZE(ss_mux_rfnm_pwr));
+	//imx_iomux_v3_setup_multiple_pads(ss_mux_rfnm_pwr, ARRAY_SIZE(ss_mux_rfnm_pwr));
 
-	gpio_request(PWR_EN_33V, "pwr_en_33v");
-	gpio_direction_output(PWR_EN_33V, 1);
+	//gpio_request(PWR_EN_33V, "pwr_en_33v");
+	//gpio_direction_output(PWR_EN_33V, 1);
 
-	gpio_request(Si5510_PWR_EN, "si5510_pwr_en");
-	gpio_direction_output(Si5510_PWR_EN, 1);
+	//gpio_request(Si5510_PWR_EN, "si5510_pwr_en");
+	//gpio_direction_output(Si5510_PWR_EN, 1);
 
+	//gpio_request(LED_DIN1, "LED_DIN1");
+	//gpio_direction_output(LED_DIN1, 0);
 
-	printf("Done pwr en init\n");
+	//gpio_request(LED_DIN2, "LED_DIN2");
+	//gpio_direction_output(LED_DIN2, 0);
+
+	//printf("Done pwr en init\n");
 
 	enable_tzc380();
 
@@ -205,3 +315,21 @@ void board_init_f(ulong dummy)
 
 	board_init_r(NULL, 0);
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
