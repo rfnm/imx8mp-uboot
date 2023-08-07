@@ -460,6 +460,7 @@ static iomux_v3_cfg_t ss_mux_rfnm[] = {
 	MX8MP_PAD_GPIO1_IO10__GPIO1_IO10 | MUX_PAD_CTRL(NO_PAD_CTRL),
 	MX8MP_PAD_SAI1_MCLK__GPIO4_IO20 | MUX_PAD_CTRL(NO_PAD_CTRL),
 	MX8MP_PAD_GPIO1_IO07__GPIO1_IO07 | MUX_PAD_CTRL(NO_PAD_CTRL),
+	MX8MP_PAD_GPIO1_IO08__GPIO1_IO08 | MUX_PAD_CTRL(NO_PAD_CTRL),
 
 };
 
@@ -470,6 +471,7 @@ static iomux_v3_cfg_t ss_mux_rfnm[] = {
 #define PWR_EN_18V IMX_GPIO_NR(1, 10)
 #define PWR_EN_09V IMX_GPIO_NR(1, 7)
 #define Si5510_RST IMX_GPIO_NR(4, 20)
+#define LA_BOOTSTRAP_EN IMX_GPIO_NR(1, 8)
 
 
 int board_init(void)
@@ -491,7 +493,7 @@ int board_init(void)
 	//gpio_direction_input(Si5510_PWR_EN);
 
 	gpio_request(PWR_EN_LA, "PWR_EN_LA");
-	gpio_direction_output(PWR_EN_LA, 1);
+	gpio_direction_output(PWR_EN_LA, 0);
 	//gpio_direction_input(PWR_EN_LA);
 
 	gpio_request(PWR_EN_18V, "PWR_EN_18V");
@@ -499,7 +501,10 @@ int board_init(void)
 	//gpio_direction_input(PWR_EN_18V);
 
 	gpio_request(PWR_EN_09V, "PWR_EN_09V");
-	gpio_direction_output(PWR_EN_09V, 1);
+	gpio_direction_output(PWR_EN_09V, 0);
+
+	gpio_request(LA_BOOTSTRAP_EN, "LA_BOOTSTRAP_EN");
+	gpio_direction_output(LA_BOOTSTRAP_EN, 1);
 
 
 
@@ -510,7 +515,7 @@ int board_init(void)
 
 	printf("Done pwr en init\n");
 
-	//while(1);
+	while(1);
 
 	//gpio_request(ENET_nRST, "ENET_nRST");
 	//gpio_direction_output(ENET_nRST, 1);

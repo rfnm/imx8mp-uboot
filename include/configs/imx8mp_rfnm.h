@@ -159,7 +159,7 @@
 				"echo WARN: Cannot load the DT; " \
 			"fi; " \
 		"fi;\0" \
-	"netargs=setenv bootargs ${jh_clk} ${mcore_clk} console=${console} " \
+	"netargs=setenv bootargs ${jh_clk} ${mcore_clk} console=${console}  default_hugepagesz=2m hugepagesz=2m hugepages=128 mem=1536M" \
 		"root=/dev/nfs " \
 		"ip=${ipaddr}:${serverip}:10.0.0.1:255.255.255.0::eth0:off:10.0.0.1 nfsroot=${serverip}:${nfsroot},v3,tcp\0" \
 	"netboot=echo Booting from net ...; " \
