@@ -515,7 +515,7 @@ int board_init(void)
 
 	printf("Done pwr en init\n");
 
-	while(1);
+	//while(1);
 
 	//gpio_request(ENET_nRST, "ENET_nRST");
 	//gpio_direction_output(ENET_nRST, 1);

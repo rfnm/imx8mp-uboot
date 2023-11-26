@@ -123,6 +123,7 @@
 	"bsp_script=boot.scr\0" \
 	"image=Image\0" \
 	"ethaddr=1A:2D:1E:C3:65:D7\0" \
+	"eth1addr=ee:b3:94:0f:9b:91\0" \
 	"nfsroot=/home/davide/rootfs\0" \
 	"serverip=10.0.0.103\0" \
 	"fdtfile=dtb\0" \
@@ -142,7 +143,7 @@
 	"mmcpart=1\0" \
 	"mmcroot=" CONFIG_MMCROOT " rootwait rw\0" \
 	"mmcautodetect=yes\0" \
-	"mmcargs=setenv bootargs ${jh_clk} ${mcore_clk} console=${console} root=${mmcroot}\0 " \
+	"mmcargs=setenv bootargs ${jh_clk} ${mcore_clk} console=${console} root=${mmcroot} isolcpus=0 \0" \
 	"loadbootscript=fatload mmc ${mmcdev}:${mmcpart} ${loadaddr} ${bsp_script};\0" \
 	"bootscript=echo Running bootscript from mmc ...; " \
 		"source\0" \
@@ -159,7 +160,7 @@
 				"echo WARN: Cannot load the DT; " \
 			"fi; " \
 		"fi;\0" \
-	"netargs=setenv bootargs ${jh_clk} ${mcore_clk} console=${console}  default_hugepagesz=2m hugepagesz=2m hugepages=128 mem=1536M" \
+	"netargs=setenv bootargs ${jh_clk} ${mcore_clk} console=${console} isolcpus=0 " \
 		"root=/dev/nfs " \
 		"ip=${ipaddr}:${serverip}:10.0.0.1:255.255.255.0::eth0:off:10.0.0.1 nfsroot=${serverip}:${nfsroot},v3,tcp\0" \
 	"netboot=echo Booting from net ...; " \
