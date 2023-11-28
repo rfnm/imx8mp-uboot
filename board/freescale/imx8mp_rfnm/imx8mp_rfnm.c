@@ -480,6 +480,14 @@ int board_init(void)
 
 	imx_iomux_v3_setup_multiple_pads(ss_mux_rfnm, ARRAY_SIZE(ss_mux_rfnm));
 
+	// init memory for bootconfig struct
+	int i;
+	for(i = 0; i < 1024; i++) {
+		writel(0xffffffff, 0x9A400000 + (i*4));
+	}
+	
+
+	
 
 	gpio_request(Si5510_RST, "Si5510_RST");
 	gpio_direction_output(Si5510_RST, 0);
