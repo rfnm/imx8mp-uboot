@@ -29,6 +29,7 @@
 #include <imx_sip.h>
 #include <linux/arm-smccc.h>
 #include <mmc.h>
+#include <../../../../../../../../work-shared/imx8mp-rfnm/kernel-source/include/linux/rfnm-shared.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -483,7 +484,7 @@ int board_init(void)
 	// init memory for bootconfig struct
 	int i;
 	for(i = 0; i < 1024; i++) {
-		writel(0xffffffff, 0x9A400000 + (i*4));
+		writel(0xffffffff, RFNM_BOOTCONFIG_PHYADDR + (i*4));
 	}
 	
 
