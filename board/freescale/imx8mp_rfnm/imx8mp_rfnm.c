@@ -463,6 +463,9 @@ static iomux_v3_cfg_t ss_mux_rfnm[] = {
 	MX8MP_PAD_GPIO1_IO07__GPIO1_IO07 | MUX_PAD_CTRL(NO_PAD_CTRL),
 	MX8MP_PAD_GPIO1_IO08__GPIO1_IO08 | MUX_PAD_CTRL(NO_PAD_CTRL),
 
+	MX8MP_PAD_GPIO1_IO11__GPIO1_IO11 | MUX_PAD_CTRL(NO_PAD_CTRL),
+	MX8MP_PAD_GPIO1_IO06__GPIO1_IO06 | MUX_PAD_CTRL(NO_PAD_CTRL),
+
 };
 
 #define PWR_EN_33V IMX_GPIO_NR(1, 12)
@@ -473,6 +476,9 @@ static iomux_v3_cfg_t ss_mux_rfnm[] = {
 #define PWR_EN_09V IMX_GPIO_NR(1, 7)
 #define Si5510_RST IMX_GPIO_NR(4, 20)
 #define LA_BOOTSTRAP_EN IMX_GPIO_NR(1, 8)
+
+#define PWR_EN_33V_RBA IMX_GPIO_NR(1, 6)
+#define PWR_EN_33V_RBB IMX_GPIO_NR(1, 11)
 
 
 int board_init(void)
@@ -514,6 +520,15 @@ int board_init(void)
 
 	gpio_request(LA_BOOTSTRAP_EN, "LA_BOOTSTRAP_EN");
 	gpio_direction_output(LA_BOOTSTRAP_EN, 1);
+
+	gpio_request(PWR_EN_33V_RBA, "PWR_EN_33V_RBA");
+	gpio_direction_output(PWR_EN_33V_RBA, 1);
+
+	// breaks boot on v1 for reasons unknown
+	//gpio_request(PWR_EN_33V_RBB, "PWR_EN_33V_RBB");
+	//gpio_direction_output(PWR_EN_33V_RBB, 1);
+
+	
 
 
 
